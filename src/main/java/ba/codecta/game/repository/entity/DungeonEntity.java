@@ -24,9 +24,8 @@ public class DungeonEntity extends ModelObject<Integer> {
     private String photoUrl;
     @OneToMany(mappedBy = "dungeon", fetch = FetchType.EAGER)
     private List<MapDungeonEntity> mapDungeons = new ArrayList<>();
-    @OneToMany(mappedBy = "dungeon", fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<DungeonTypeEntity> dungeonTypes = new ArrayList<>();
+    @ManyToOne
+    private DungeonTypeEntity dungeonType;
 
     @Override
     public Integer getId() {
@@ -69,11 +68,11 @@ public class DungeonEntity extends ModelObject<Integer> {
         this.mapDungeons = mapDungeons;
     }
 
-    public List<DungeonTypeEntity> getDungeonTypes() {
-        return dungeonTypes;
+    public DungeonTypeEntity getDungeonType() {
+        return dungeonType;
     }
 
-    public void setDungeonTypes(List<DungeonTypeEntity> dungeonTypes) {
-        this.dungeonTypes = dungeonTypes;
+    public void setDungeonType(DungeonTypeEntity dungeonType) {
+        this.dungeonType = dungeonType;
     }
 }

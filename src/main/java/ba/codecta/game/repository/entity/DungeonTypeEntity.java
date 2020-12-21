@@ -1,6 +1,8 @@
 package ba.codecta.game.repository.entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(schema = "game", name = "DUNGEON_TYPE")
@@ -15,8 +17,8 @@ public class DungeonTypeEntity extends ModelObject<Integer> {
     @Column(name = "ID", nullable = false)
     private Integer id;
     private String name;
-    @ManyToOne
-    private DungeonEntity dungeon;
+    @OneToMany(mappedBy = "dungeonType", fetch = FetchType.EAGER)
+    private List<DungeonEntity> dungeons = new ArrayList<>();
 
     @Override
     public Integer getId() {
@@ -35,11 +37,11 @@ public class DungeonTypeEntity extends ModelObject<Integer> {
         this.name = name;
     }
 
-    public DungeonEntity getDungeon() {
-        return dungeon;
+    public List<DungeonEntity> getDungeons() {
+        return dungeons;
     }
 
-    public void setDungeon(DungeonEntity dungeon) {
-        this.dungeon = dungeon;
+    public void setDungeons(List<DungeonEntity> dungeons) {
+        this.dungeons = dungeons;
     }
 }
