@@ -22,6 +22,15 @@ public class HeroEntity extends ModelObject<Integer> {
     private Integer Damage;
     private Integer Coins;
 
+    public HeroEntity(String name, String backStory, Integer health, Integer damage, Integer coins, WeaponEntity weapon) {
+        this.name = name;
+        this.backStory = backStory;
+        Health = health;
+        Damage = damage;
+        Coins = coins;
+        this.weapon = weapon;
+    }
+
     @ManyToOne
     private WeaponEntity weapon;
 

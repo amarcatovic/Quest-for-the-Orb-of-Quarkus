@@ -16,13 +16,26 @@ public class MapEntity extends ModelObject<Integer> {
     @Id
     @Column(name = "ID", nullable = false)
     private Integer id;
-    private Byte playerLocationX;
-    private Byte playerLocationY;
+    private Integer playerLocationX;
+    private Integer playerLocationY;
+    private Integer mapDimensionX;
+    private Integer mapDimensionY;
     private boolean playerHasKey;
     @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
     private List<LevelEntity> levels = new ArrayList<>();
     @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
     private List<MapDungeonEntity> mapDungeons = new ArrayList<>();
+
+    public MapEntity(){
+    }
+
+    public MapEntity(Integer x, Integer y) {
+        this.playerLocationX = 0;
+        this.playerLocationY = 0;
+        this.playerHasKey = false;
+        this.mapDimensionX = x;
+        this.mapDimensionY = y;
+    }
 
     @Override
     public Integer getId() {
@@ -33,19 +46,19 @@ public class MapEntity extends ModelObject<Integer> {
         this.id = id;
     }
 
-    public Byte getPlayerLocationX() {
+    public Integer getPlayerLocationX() {
         return playerLocationX;
     }
 
-    public void setPlayerLocationX(Byte playerLocationX) {
+    public void setPlayerLocationX(Integer playerLocationX) {
         this.playerLocationX = playerLocationX;
     }
 
-    public Byte getPlayerLocationY() {
+    public Integer getPlayerLocationY() {
         return playerLocationY;
     }
 
-    public void setPlayerLocationY(Byte playerLocationY) {
+    public void setPlayerLocationY(Integer playerLocationY) {
         this.playerLocationY = playerLocationY;
     }
 
@@ -71,5 +84,21 @@ public class MapEntity extends ModelObject<Integer> {
 
     public void setMapDungeons(List<MapDungeonEntity> mapDungeons) {
         this.mapDungeons = mapDungeons;
+    }
+
+    public Integer getMapDimensionX() {
+        return mapDimensionX;
+    }
+
+    public void setMapDimensionX(Integer mapDimensionX) {
+        this.mapDimensionX = mapDimensionX;
+    }
+
+    public Integer getMapDimensionY() {
+        return mapDimensionY;
+    }
+
+    public void setMapDimensionY(Integer mapDimensionY) {
+        this.mapDimensionY = mapDimensionY;
     }
 }

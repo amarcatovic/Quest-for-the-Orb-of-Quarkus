@@ -25,10 +25,33 @@ public class MapDungeonEntity extends ModelObject<Integer> {
     @ManyToOne
     private ItemEntity secretItem;
     private boolean visited;
-    private Byte locationX;
-    private Byte locationY;
+    private Integer locationX;
+    private Integer locationY;
     private Integer monsterHP;
     private boolean isMonsterFriend;
+
+    public MapDungeonEntity() {
+    }
+
+    public MapDungeonEntity(MapEntity map, DungeonEntity dungeon, MonsterEntity monster, ItemEntity monsterItem, ItemEntity secretItem, Integer locationX, Integer locationY) {
+        this.map = map;
+        this.dungeon = dungeon;
+        this.monster = monster;
+        this.monsterItem = monsterItem;
+        this.secretItem = secretItem;
+        this.locationX = locationX;
+        this.locationY = locationY;
+        this.monsterHP = 100;
+        this.isMonsterFriend = false;
+        this.visited = false;
+        if(this.locationX == 0 && this.locationY == 0){
+            this.visited = true;
+        }
+        if(this.monster == null){
+            this.monsterHP = 0;
+            this.isMonsterFriend = true;
+        }
+    }
 
     @Override
     public Integer getId() {
@@ -87,19 +110,19 @@ public class MapDungeonEntity extends ModelObject<Integer> {
         this.visited = visited;
     }
 
-    public Byte getLocationX() {
+    public Integer getLocationX() {
         return locationX;
     }
 
-    public void setLocationX(Byte locationX) {
+    public void setLocationX(Integer locationX) {
         this.locationX = locationX;
     }
 
-    public Byte getLocationY() {
+    public Integer getLocationY() {
         return locationY;
     }
 
-    public void setLocationY(Byte locationY) {
+    public void setLocationY(Integer locationY) {
         this.locationY = locationY;
     }
 

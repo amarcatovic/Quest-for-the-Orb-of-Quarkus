@@ -21,6 +21,14 @@ public class InventoryEntity extends ModelObject<Integer> {
     @ManyToOne
     private ItemEntity item;
 
+    public InventoryEntity() {
+    }
+
+    public InventoryEntity(HeroEntity hero, ItemEntity item) {
+        this.hero = hero;
+        this.item = item;
+    }
+
     @Override
     public Integer getId() {
         return this.id;
