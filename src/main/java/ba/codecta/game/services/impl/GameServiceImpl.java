@@ -3,9 +3,7 @@ package ba.codecta.game.services.impl;
 import ba.codecta.game.helper.MapAction;
 import ba.codecta.game.helper.MoveDirection;
 import ba.codecta.game.repository.GameRepository;
-import ba.codecta.game.repository.entity.GameEntity;
-import ba.codecta.game.repository.entity.HeroEntity;
-import ba.codecta.game.repository.entity.LevelEntity;
+import ba.codecta.game.repository.entity.*;
 import ba.codecta.game.services.*;
 import ba.codecta.game.services.model.*;
 
@@ -33,6 +31,12 @@ public class GameServiceImpl implements GameService {
     @Inject
     InventoryService inventoryService;
 
+    @Inject
+    ItemService itemService;
+
+    @Inject
+    WeaponService weaponService;
+
     /**
      *
      * @param newGameDto
@@ -59,6 +63,9 @@ public class GameServiceImpl implements GameService {
     @Override
     public GameResponseDto handleMoveAction(Integer gameId, String direction) {
         GameEntity game = this.getGameEntity(gameId);
+        if(this.isHeroDead(this.heroService.getHeroEntityById(game.getHero().getId()))){
+            return null;
+        }
         MapDto mapDto = null;
 
         direction = direction.toLowerCase();
@@ -90,6 +97,9 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleAction(Integer gameId, String action) {
         GameEntity game = this.getGameEntity(gameId);
         HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+        if(this.isHeroDead(hero)){
+            return null;
+        }
         MapDto mapDto = null;
 
         action = action.toLowerCase();
@@ -120,6 +130,9 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleHealAction(Integer gameId) {
         GameEntity game = this.getGameEntity(gameId);
         HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+        if(this.isHeroDead(hero)){
+            return null;
+        }
         InventoryDto inventoryDto = inventoryService.getHeroInventory(hero.getId());
         String message = "Unable to heal! No healing items";
 
@@ -141,6 +154,98 @@ public class GameServiceImpl implements GameService {
         }
 
         MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), message);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+    }
+
+    /**
+     *
+     * @param gameId
+     * @param itemId
+     * @return
+     */
+    @Override
+    public GameResponseDto handleInventoryAction(Integer gameId, Integer itemId) {
+        GameEntity game = this.getGameEntity(gameId);
+        HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+        if(this.isHeroDead(hero)){
+            return null;
+        }
+        InventoryDto inventoryDto = inventoryService.getHeroInventory(hero.getId());
+        for(ItemDto item : inventoryDto.getItems()){
+            if(item.getId().equals(itemId)){
+                if(item.getItemTypeName().equals("Healing Potion")){
+                    hero.setHealth(hero.getHealth() + item.getBonus());
+                    if(hero.getHealth() > 100){
+                        hero.setHealth(100);
+                    }
+                    inventoryService.removeItemFromInventory(hero.getId(), itemId);
+                } else if(item.getItemTypeName().equals("Strength Snacks")){
+                    hero.setDamage(hero.getDamage() + item.getBonus());
+                    if(hero.getDamage() > 100){
+                        hero.setDamage(100);
+                    }
+                    inventoryService.removeItemFromInventory(hero.getId(), itemId);
+                }
+
+                heroService.saveHero(hero);
+                break;
+            }
+        }
+
+        MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), "Item used");
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public ShopItemsDto getShopItems() {
+        ShopItemsDto result = new ShopItemsDto();
+        result.setHealingItems(itemService.getAllHealingItemsForShop());
+        result.setStrengthItems(itemService.getAllStrengthItemsForShop());
+        result.setWeaponItems(weaponService.getAllWeapons());
+
+        return result;
+    }
+
+    /**
+     *
+     * @param gameId
+     * @param itemId
+     * @param itemType
+     * @return
+     */
+    @Override
+    public GameResponseDto handleShopAction(Integer gameId, Integer itemId, String itemType) {
+        GameEntity game = this.getGameEntity(gameId);
+        MapEntity map = mapService.getMap(game.getLevel().getMap().getId());
+        if(!(map.getPlayerLocationX() == 0 && map.getPlayerLocationY() == 0)){
+            return null;
+        }
+        HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+        if(itemType.toLowerCase().equals("weapon")){
+            WeaponEntity weapon = weaponService.getWeaponById(itemId);
+            if(weapon == null){
+                return null;
+            }
+            if(hero.getCoins() >= weapon.getPrice()){
+                hero.setWeapon(weapon);
+                hero.setCoins(hero.getCoins() - weapon.getPrice());
+            }
+        } else if(itemType.toLowerCase().equals("item")){
+            ItemEntity item = itemService.getItemById(itemId);
+            if(item == null || item.getId() == 1 || item.getId() == 2){
+                return null;
+            }
+            if(hero.getCoins() >= item.getBonus()){
+                inventoryService.addHeroItemToInventory(hero.getId(), itemId);
+                hero.setCoins(hero.getCoins() - item.getBonus());
+            }
+        }
+
+        MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), "Item bought");
         return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
     }
 
@@ -199,5 +304,14 @@ public class GameServiceImpl implements GameService {
         }
 
         return  result;
+    }
+
+    /**
+     *
+     * @param hero
+     * @return
+     */
+    private boolean isHeroDead(HeroEntity hero){
+        return hero.getHealth() <= 0;
     }
 }

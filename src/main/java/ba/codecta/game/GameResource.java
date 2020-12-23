@@ -8,6 +8,7 @@ import ba.codecta.game.services.model.GameResponseDto;
 import ba.codecta.game.services.model.HeroDto;
 import ba.codecta.game.services.InventoryService;
 import ba.codecta.game.services.model.NewGameDto;
+import ba.codecta.game.services.model.ShopItemsDto;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -101,6 +102,74 @@ public class GameResource {
     public Response handleHealAction(@PathParam("id") Integer id){
         try{
             GameResponseDto result = gameService.handleHealAction(id);
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    /**
+     * PUT /game/{Game Id}/inventory/use/{Item Id}
+     * Uses item from the inventory
+     * @param id - game id
+     * @param itemId - id of an item from inventory
+     * @return GameResponseDto object
+     */
+    @PUT
+    @Path("/{id}/inventory/use/{itemId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response handleHealAction(@PathParam("id") Integer id, @PathParam("itemId") Integer itemId){
+        try{
+            GameResponseDto result = gameService.handleInventoryAction(id, itemId);
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    /**
+     * GET /game/shop
+     * Gets all shop items
+     * @return - ShopItemsDto object
+     */
+    @GET
+    @Path("/shop")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getShopItems(){
+        try{
+            ShopItemsDto result = gameService.getShopItems();
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    /**
+     * GET /game/{Game Id}/shop/{Item Id}?type={weapon | item}
+     * Buys item or weapon from shop
+     * @return - GameResponseDto object
+     */
+    @POST
+    @Path("{id}/shop/{itemId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getShopItems(@PathParam("id") Integer id, @PathParam("itemId") Integer itemId, @QueryParam("type") String type){
+        try{
+            GameResponseDto result = gameService.handleShopAction(id, itemId, type);
             if(result == null){
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }

@@ -33,4 +33,9 @@ public class WeaponsServiceImpl implements WeaponService {
 
         return weaponDtoList;
     }
+
+    @Override
+    public WeaponEntity getWeaponById(Integer id) {
+        return weaponRepository.findById(id);
+    }
 }

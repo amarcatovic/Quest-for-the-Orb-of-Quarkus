@@ -251,6 +251,18 @@ public class MapServiceImpl implements MapService {
     }
 
     /**
+     * Gets current player dungeon from database
+     * @param mapId - map id
+     * @param playerX - player x coordinate on map
+     * @param playerY - player y coordinate on map
+     * @return MapDungeonEntity object
+     */
+    @Override
+    public MapDungeonEntity getCurrentPlayerDungeonLocation(Integer mapId, Integer playerX, Integer playerY) {
+        return mapDungeonRepository.getCurrentPlayerDungeonLocation(mapId, playerX, playerY);
+    }
+
+    /**
      * Creates action messages based on players location on map
      * @param map - map object
      * @param dungeons - list of dungeons located in map

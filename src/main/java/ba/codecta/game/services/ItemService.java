@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface ItemService {
     List<ItemEntity> getAllItems();
+    ItemEntity getItemById(Integer id);
+    List<ItemDto> getAllHealingItemsForShop();
+    List<ItemDto> getAllStrengthItemsForShop();
 }

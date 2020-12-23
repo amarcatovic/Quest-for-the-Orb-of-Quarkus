@@ -3,7 +3,7 @@ VALUES(1, 'Healing Potion', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO game.item_type(id, name, created_on, modified_on)
 VALUES(2, 'Strength Snacks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO game.item_type(id, name, created_on, modified_on)
-VALUES(3, 'Healing Potion', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES(3, 'Orb', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO game.item_type(id, name, created_on, modified_on)
 VALUES(4, 'Key', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
