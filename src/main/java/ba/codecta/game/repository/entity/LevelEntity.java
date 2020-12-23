@@ -16,7 +16,7 @@ public class LevelEntity extends ModelObject<Integer> {
     @Id
     @Column(name = "ID", nullable = false)
     private Integer id;
-    private Byte weightFactor;
+    private Integer weightFactor;
     @OneToMany(mappedBy = "level", fetch = FetchType.EAGER)
     private List<GameEntity> games = new ArrayList<>();
     @ManyToOne
@@ -31,11 +31,11 @@ public class LevelEntity extends ModelObject<Integer> {
         this.id = id;
     }
 
-    public Byte getWeightFactor() {
+    public Integer getWeightFactor() {
         return weightFactor;
     }
 
-    public void setWeightFactor(Byte weightFactor) {
+    public void setWeightFactor(Integer weightFactor) {
         this.weightFactor = weightFactor;
     }
 

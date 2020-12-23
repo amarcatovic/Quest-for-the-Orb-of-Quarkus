@@ -106,10 +106,11 @@ public class MapServiceImpl implements MapService {
                 (moveDirection == MoveDirection.LEFT && currentMap.getPlayerLocationY() == 0) || (moveDirection == MoveDirection.RIGHT && currentMap.getPlayerLocationY() == currentMap.getMapDimensionY() - 1)){
             return this.createMapDto(currentMap.getId(), "Invalid move! You hit the wall", this.createActions(currentMap, mappedDungeons));
         }
-        if(!currentDungeon.isMonsterFriend() || currentDungeon.getMonsterHP() > 0){
+        if(!currentDungeon.isMonsterFriend()){
             return this.createMapDto(currentMap.getId(), "You need to interact with the monster first", this.createActions(currentMap, mappedDungeons));
         }
-        if(!currentMap.isPlayerHasKey() && ((currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 1 && currentMap.getPlayerLocationY() == 1) || (currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 2 && currentMap.getPlayerLocationY() == 2))){
+
+        if(!currentMap.isPlayerHasKey() && ((currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 1 && currentMap.getPlayerLocationY() == 1) || (currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 2 && currentMap.getPlayerLocationY() == 2)) && (moveDirection == MoveDirection.DOWN || moveDirection == MoveDirection.RIGHT)){
             return this.createMapDto(currentMap.getId(), "You don't have the key", this.createActions(currentMap, mappedDungeons));
         }
 
@@ -182,6 +183,19 @@ public class MapServiceImpl implements MapService {
     }
 
     /**
+     * Gets current map state
+     * @param mapId - map id
+     * @param message - message to be displayed
+     * @return MapDto object
+     */
+    @Override
+    public MapDto getStatus(Integer mapId, String message) {
+        MapEntity currentMap = this.getMap(mapId);
+        List<MapDungeonEntity> mappedDungeons = this.getMappedDungeons(mapId);
+        return this.createMapDto(mapId, message, this.createActions(currentMap, mappedDungeons));
+    }
+
+    /**
      * Method that creates MapDto
      * @param message - Info message
      * @param actions - Actions that player can do
@@ -231,7 +245,8 @@ public class MapServiceImpl implements MapService {
      * @param mapId - id of map
      * @return MapEntity object
      */
-    private MapEntity getMap(Integer mapId){
+    @Override
+    public MapEntity getMap(Integer mapId){
         return mapRepository.findById(mapId);
     }
 
@@ -246,7 +261,7 @@ public class MapServiceImpl implements MapService {
         MapDungeonEntity currentDungeon = this.getCurrentDungeonPlayerLocation(map.getPlayerLocationX(), map.getPlayerLocationY(), dungeons);
         boolean isPlayerNextToBossCave = (map.getPlayerLocationX() == map.getMapDimensionX() - 1 && map.getPlayerLocationY() == 1) || (map.getPlayerLocationX() == map.getMapDimensionX() - 2 && map.getPlayerLocationY() == 2);
         boolean canPlayerMoveToBoss = (map.isPlayerHasKey() && isPlayerNextToBossCave);
-        boolean canPlayerMoveFromMonsterDungeon = (currentDungeon.getMonster() == null && currentDungeon.isMonsterFriend());
+        boolean canPlayerMoveFromMonsterDungeon = (currentDungeon.getMonster() == null || currentDungeon.isMonsterFriend());
         if(map.getPlayerLocationX() == 0 && map.getPlayerLocationY() == 0){
             result.add("Shop");
         }

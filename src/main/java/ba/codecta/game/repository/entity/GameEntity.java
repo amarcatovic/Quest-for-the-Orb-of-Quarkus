@@ -24,6 +24,16 @@ public class GameEntity extends ModelObject<Integer> {
     private LocalDateTime dateStarted;
     private LocalDateTime dateFinished;
 
+    public GameEntity() {
+    }
+
+    public GameEntity(HeroEntity hero, LevelEntity level) {
+        this.hero = hero;
+        this.level = level;
+        this.dateStarted = LocalDateTime.now();
+        this.dateFinished = null;
+    }
+
     @Override
     public Integer getId() {
         return this.id;

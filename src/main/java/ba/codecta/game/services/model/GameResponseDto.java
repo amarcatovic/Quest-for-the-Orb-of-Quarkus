@@ -3,13 +3,40 @@ package ba.codecta.game.services.model;
 import java.util.List;
 
 public class GameResponseDto {
-    private List<String> messages;
+    private Integer gameId;
+    private HeroDto hero;
+    private MapDto mapInfo;
+    private InventoryDto inventory;
 
-    public List<String> getMessages() {
-        return messages;
+    public HeroDto getHero() {
+        return hero;
     }
 
-    public void setMessages(List<String> messages) {
-        this.messages = messages;
+    public void setHero(HeroDto hero) {
+        this.hero = hero;
+    }
+
+    public MapDto getMapInfo() {
+        return mapInfo;
+    }
+
+    public void setMapInfo(MapDto mapInfo) {
+        this.mapInfo = mapInfo;
+    }
+
+    public InventoryDto getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(InventoryDto inventory) {
+        this.inventory = inventory;
+    }
+
+    public Integer getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
     }
 }
