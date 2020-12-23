@@ -1,0 +1,374 @@
+{
+	"info": {
+		"_postman_id": "92077ce3-9750-41fd-a1ba-9ebce8a2d6d0",
+		"name": "Quest for the Orb of Quarkus",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new game",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"heroName\": \"Amazing Goat\",\r\n    \"heroDescription\": \"Superhero generated name based on my initials\",\r\n    \"email\": \"amarzenica@gmail.com\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/game",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move Up",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/move?direction=up",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"move"
+					],
+					"query": [
+						{
+							"key": "direction",
+							"value": "up"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move Right",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/move?direction=right",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"move"
+					],
+					"query": [
+						{
+							"key": "direction",
+							"value": "right"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move Down",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/move?direction=down",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"move"
+					],
+					"query": [
+						{
+							"key": "direction",
+							"value": "down"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Move Left",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/move?direction=left",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"move"
+					],
+					"query": [
+						{
+							"key": "direction",
+							"value": "left"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fight Monster",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/action?type=fight",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"action"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "fight"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Befriend Monster",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/action?type=befriend",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"action"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "befriend"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search For Hidden Items",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/action?type=search-items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"action"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "search-items"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Flee From Dungeon",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/action?type=flee",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"action"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "flee"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Heal Hero",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/heal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"heal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Use Item From Inventory",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/inventory/use/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"inventory",
+						"use",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Shop Items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/shop",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"shop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Shop Items",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/shop/5?type=item",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"shop",
+						"5"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "item"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Shop Weapons",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/1/shop/1?type=weapon",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"1",
+						"shop",
+						"1"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "weapon"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
