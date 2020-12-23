@@ -1,6 +1,8 @@
 package ba.codecta.game;
 
+import ba.codecta.game.helper.MapAction;
 import ba.codecta.game.helper.MoveDirection;
+import ba.codecta.game.repository.entity.HeroEntity;
 import ba.codecta.game.services.*;
 import ba.codecta.game.services.model.HeroDto;
 import ba.codecta.game.services.InventoryService;
@@ -39,5 +41,26 @@ public class GameResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response hello3() {
         return Response.ok(mapService.move(1, MoveDirection.DOWN)).build();
+    }
+
+    @GET
+    @Path("/4")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response hello4() {
+        return Response.ok(mapService.action(1, 1 ,MapAction.FIGHT)).build();
+    }
+
+    @GET
+    @Path("/5")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response hello5() {
+        return Response.ok(mapService.action(1, 1 ,MapAction.SEARCH_SECRET_ITEM)).build();
+    }
+
+    @GET
+    @Path("/6")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response hello6() {
+        return Response.ok(mapService.action(1, 1 ,MapAction.BEFRIEND)).build();
     }
 }

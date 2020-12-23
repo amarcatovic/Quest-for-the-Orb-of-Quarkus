@@ -20,10 +20,15 @@ public class HeroServiceImpl implements HeroService {
 
     @Override
     public HeroDto createHero(String name, String backStory) {
-        HeroEntity newHero = new HeroEntity(name, backStory, 50, 80, 100, null);
+        HeroEntity newHero = new HeroEntity(name, backStory, 100, 80, 100, null);
         newHero = heroRepository.add(newHero);
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(newHero, HeroDto.class);
+    }
+
+    @Override
+    public HeroEntity saveHero(HeroEntity heroEntity) {
+        return this.heroRepository.save(heroEntity);
     }
 
     @Override
@@ -40,6 +45,11 @@ public class HeroServiceImpl implements HeroService {
 
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(heroFromDb, HeroDto.class);
+    }
+
+    @Override
+    public HeroEntity getHeroEntityById(Integer id) {
+        return heroRepository.findById(id);
     }
 
     @Override

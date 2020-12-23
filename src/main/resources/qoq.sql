@@ -2,15 +2,21 @@ INSERT INTO game.item_type(id, name, created_on, modified_on)
 VALUES(1, 'Healing Potion', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO game.item_type(id, name, created_on, modified_on)
 VALUES(2, 'Strength Snacks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO game.item_type(id, name, created_on, modified_on)
+VALUES(3, 'Healing Potion', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO game.item_type(id, name, created_on, modified_on)
+VALUES(4, 'Key', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
-VALUES(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Coca-Cola', 'https://media.officedepot.com/image/upload/b_rgb:FFFFFF,c_pad,dpr_1.0,f_auto,h_1665,q_auto,w_1250/c_pad,h_1665,w_1250/v1/products/208206/208206_p?pgw=1&pgwact=1', 1);
+VALUES(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 100, 'The Orb Of Quarkus', 'https://res.infoq.com/articles/getting-started-with-quarkus/en/headerimage/quarkus_h-1586170340042.jpg', 3);
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
-VALUES(2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Fanta', 'https://www.konzumshop.ba/images/products/031/03160019_1l.gif', 1);
+VALUES(2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 100, 'Key', 'https://i.pinimg.com/originals/58/b1/e8/58b1e8b2e78983d8148e3df0daaae0c9.jpg', 4);
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
-VALUES(3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Sprite', 'https://www.coca-colacompany.com/content/dam/journey/us/en/brands/sprite/Sprite-Original-282x700.png', 1);
+VALUES(3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Fanta', 'https://www.konzumshop.ba/images/products/031/03160019_1l.gif', 1);
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
-VALUES(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Cockta', 'https://cockta.eu/media/dsg/cockta/cockta_full.png', 1);
+VALUES(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Sprite', 'https://www.coca-colacompany.com/content/dam/journey/us/en/brands/sprite/Sprite-Original-282x700.png', 1);
+INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
+VALUES(5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 10, 'Cockta', 'https://cockta.eu/media/dsg/cockta/cockta_full.png', 1);
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)
 VALUES(6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 25, 'Lemonade', 'https://images-na.ssl-images-amazon.com/images/I/71wj9GVnFsL._AC_SL1500_.jpg', 1);
 INSERT INTO game.item(id, created_on, modified_on, bonus, name, photoUrl, itemtype_id)

@@ -22,7 +22,7 @@ public class WeaponEntity extends ModelObject<Integer>{
     private Integer health;
     private Integer damage;
 
-    @OneToMany(mappedBy = "weapon", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "weapon", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     private List<HeroEntity> heroes = new ArrayList<>();
 
     @Override
