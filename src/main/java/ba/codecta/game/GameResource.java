@@ -4,34 +4,68 @@ import ba.codecta.game.helper.MapAction;
 import ba.codecta.game.helper.MoveDirection;
 import ba.codecta.game.repository.entity.HeroEntity;
 import ba.codecta.game.services.*;
-import ba.codecta.game.services.model.GameResponseDto;
-import ba.codecta.game.services.model.HeroDto;
+import ba.codecta.game.services.model.*;
 import ba.codecta.game.services.InventoryService;
-import ba.codecta.game.services.model.NewGameDto;
-import ba.codecta.game.services.model.ShopItemsDto;
+import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import javax.annotation.security.PermitAll;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
 
 @Path("/game")
+@RequestScoped
 public class GameResource {
     @Inject
     GameService gameService;
+
+    @Inject
+    JsonWebToken jwt;
 
     /**
      * POST /game
      * Creates new game, hero, level and map
      * @param newGameDto - newGameDto object mapped from JSON
-     * @return GameResponseDto object
+     * @return GameCreateResponseDto object
      */
     @POST
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({MediaType.APPLICATION_JSON})
     public Response createNewGame(NewGameDto newGameDto){
         try{
-            GameResponseDto result = gameService.createNewGame(newGameDto);
+            GameCreateResponseDto result = gameService.createNewGame(newGameDto);
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    /**
+     * POST /game/new-level?heroId={Hero Id}
+     * Creates new game level if player has killed the boss monster
+     * @param heroId - id of existing hero
+     * @return GameCreateResponseDto object
+     */
+    @POST
+    @Path("/new-level")
+    @PermitAll
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createNewGame(@QueryParam("heroId") Integer heroId){
+        try{
+            GameCreateResponseDto result = gameService.createNewLevel(heroId);
             if(result == null){
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
@@ -53,7 +87,8 @@ public class GameResource {
     @POST
     @Path("/{id}/move")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleMoveAction(@PathParam("id") Integer id, @QueryParam("direction") String direction){
+    public Response handleMoveAction(@PathParam("id") Integer id, @QueryParam("direction") String direction, @Context SecurityContext ctx){
+        System.out.println(this.getGameIdFromToken(ctx));
         try{
             GameResponseDto result = gameService.handleMoveAction(id, direction);
             if(result == null){
@@ -179,5 +214,18 @@ public class GameResource {
         }catch (Exception e){
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+
+    /**
+     *
+     * @param ctx
+     * @return
+     */
+    private Integer getGameIdFromToken(SecurityContext ctx){
+        if(jwt.getClaimNames() == null){
+            return null;
+        }
+
+        return Integer.parseInt(jwt.getClaim("gameId").toString());
     }
 }

@@ -94,24 +94,24 @@ public class MapServiceImpl implements MapService {
      * Handles move action
      * @param mapId - map id
      * @param moveDirection - move direction
-     * @return MapDto object
+     * @return message
      */
     @Override
-    public MapDto move(Integer mapId, MoveDirection moveDirection) {
+    public String move(Integer mapId, MoveDirection moveDirection) {
         MapEntity currentMap = this.getMap(mapId);
         List<MapDungeonEntity> mappedDungeons = this.getMappedDungeons(mapId);
         MapDungeonEntity currentDungeon = this.getCurrentDungeonPlayerLocation(currentMap.getPlayerLocationX(), currentMap.getPlayerLocationY(), mappedDungeons);
 
         if((moveDirection == MoveDirection.UP && currentMap.getPlayerLocationX() == 0) || (moveDirection == MoveDirection.DOWN && currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 1) ||
                 (moveDirection == MoveDirection.LEFT && currentMap.getPlayerLocationY() == 0) || (moveDirection == MoveDirection.RIGHT && currentMap.getPlayerLocationY() == currentMap.getMapDimensionY() - 1)){
-            return this.createMapDto(currentMap.getId(), "Invalid move! You hit the wall", this.createActions(currentMap, mappedDungeons));
+            return "Invalid move! You hit the wall";
         }
         if(!currentDungeon.isMonsterFriend()){
-            return this.createMapDto(currentMap.getId(), "You need to interact with the monster first", this.createActions(currentMap, mappedDungeons));
+            return "You need to interact with the monster first";
         }
 
         if(!currentMap.isPlayerHasKey() && ((currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 1 && currentMap.getPlayerLocationY() == 1) || (currentMap.getPlayerLocationX() == currentMap.getMapDimensionX() - 2 && currentMap.getPlayerLocationY() == 2)) && (moveDirection == MoveDirection.DOWN || moveDirection == MoveDirection.RIGHT)){
-            return this.createMapDto(currentMap.getId(), "You don't have the key", this.createActions(currentMap, mappedDungeons));
+            return "You don't have the key";
         }
 
         String message = "";
@@ -136,7 +136,7 @@ public class MapServiceImpl implements MapService {
         MapDungeonEntity newDungeon = getCurrentDungeonPlayerLocation(currentMap.getPlayerLocationX(), currentMap.getPlayerLocationY(), mappedDungeons);
         newDungeon.setVisited(true);
         mapDungeonRepository.save(newDungeon);
-        return this.createMapDto(currentMap.getId(), message, this.createActions(currentMap, mappedDungeons));
+        return message;
     }
 
     /**
@@ -147,39 +147,39 @@ public class MapServiceImpl implements MapService {
      * @return MapDto Object
      */
     @Override
-    public MapDto action(Integer heroId, Integer mapId, MapAction mapAction) {
+    public String action(Integer heroId, Integer mapId, MapAction mapAction) {
         MapEntity currentMap = this.getMap(mapId);
         HeroEntity hero = heroService.getHeroEntityById(heroId);
-        List<MapDungeonEntity> mappedDungeons = this.getMappedDungeons(mapId);
-        MapDungeonEntity currentDungeon = this.getCurrentDungeonPlayerLocation(currentMap.getPlayerLocationX(), currentMap.getPlayerLocationY(), mappedDungeons);
+        MapEntity map = this.getMap(mapId);
+        MapDungeonEntity currentDungeon = this.getCurrentPlayerDungeonLocation(mapId, map.getPlayerLocationX(), map.getPlayerLocationY());
 
         if((mapAction == MapAction.BEFRIEND && currentDungeon.getMonster() == null) || (mapAction == MapAction.FIGHT && currentDungeon.getMonster() == null)
         || (mapAction == MapAction.FLEE && currentDungeon.getMonster() == null)){
-            return this.createMapDto(currentMap.getId(), "Invalid action! There is no monster in this dungeon!", this.createActions(currentMap, mappedDungeons));
+            return "Invalid action! There is no monster in this dungeon!";
         }
 
         // FIGHT
         if(mapAction == MapAction.FIGHT){
-            return this.actionFight(currentDungeon, currentMap, mappedDungeons, hero);
+            return this.actionFight(currentDungeon, currentMap, hero);
         }
 
         // SEARCH SECRET ITEM
         if(mapAction == MapAction.SEARCH_SECRET_ITEM){
-            return this.actionSearchSecretItem(currentDungeon, currentMap, mappedDungeons, hero);
+            return this.actionSearchSecretItem(currentDungeon, currentMap, hero);
         }
 
         // BEFRIEND MONSTER
         if(mapAction == MapAction.BEFRIEND){
-            return this.actionBefriend(currentDungeon, currentMap, mappedDungeons, hero);
+            return this.actionBefriend(currentDungeon, currentMap, hero);
         }
 
         // FLEE
         if(mapAction == MapAction.FLEE){
-            return this.actionFlee(currentDungeon, currentMap, mappedDungeons, hero);
+            return this.actionFlee(currentDungeon, currentMap, hero);
         }
 
 
-        return new MapDto();
+        return "Something went wrong";
     }
 
     /**
@@ -192,7 +192,7 @@ public class MapServiceImpl implements MapService {
     public MapDto getStatus(Integer mapId, String message) {
         MapEntity currentMap = this.getMap(mapId);
         List<MapDungeonEntity> mappedDungeons = this.getMappedDungeons(mapId);
-        return this.createMapDto(mapId, message, this.createActions(currentMap, mappedDungeons));
+        return this.createMapDto(mapId, message, this.createActions(currentMap));
     }
 
     /**
@@ -227,8 +227,8 @@ public class MapServiceImpl implements MapService {
      * @param y - location y in map
      */
     private void addMapDungeon(MapEntity newMap, DungeonEntity dungeonEntity, MonsterEntity monsterEntity, ItemEntity monsterItem, ItemEntity secretItem, Integer x, Integer y) {
-        MapDungeonEntity newMapedDungeon = new MapDungeonEntity(newMap, dungeonEntity, monsterEntity, monsterItem, secretItem, x, y);
-        mapDungeonRepository.add(newMapedDungeon);
+        MapDungeonEntity newMappedDungeon = new MapDungeonEntity(newMap, dungeonEntity, monsterEntity, monsterItem, secretItem, x, y);
+        mapDungeonRepository.add(newMappedDungeon);
     }
 
     /**
@@ -265,12 +265,12 @@ public class MapServiceImpl implements MapService {
     /**
      * Creates action messages based on players location on map
      * @param map - map object
-     * @param dungeons - list of dungeons located in map
      * @return List of action messages
      */
-    private List<String> createActions(MapEntity map, List<MapDungeonEntity> dungeons){
+    @Override
+    public List<String> createActions(MapEntity map){
         List<String> result = new ArrayList<>();
-        MapDungeonEntity currentDungeon = this.getCurrentDungeonPlayerLocation(map.getPlayerLocationX(), map.getPlayerLocationY(), dungeons);
+        MapDungeonEntity currentDungeon = this.getCurrentPlayerDungeonLocation(map.getId(), map.getPlayerLocationX(), map.getPlayerLocationY());
         boolean isPlayerNextToBossCave = (map.getPlayerLocationX() == map.getMapDimensionX() - 1 && map.getPlayerLocationY() == 1) || (map.getPlayerLocationX() == map.getMapDimensionX() - 2 && map.getPlayerLocationY() == 2);
         boolean canPlayerMoveToBoss = (map.isPlayerHasKey() && isPlayerNextToBossCave);
         boolean canPlayerMoveFromMonsterDungeon = (currentDungeon.getMonster() == null || currentDungeon.isMonsterFriend());
@@ -334,11 +334,10 @@ public class MapServiceImpl implements MapService {
      * Handles search item action
      * @param currentDungeon - MapDungeonEntity object
      * @param currentMap - MapEntity object
-     * @param mappedDungeons - List of MapDungeonEntity objects
      * @param hero - HeroEntity object
-     * @return MapDto object
+     * @return message
      */
-    private MapDto actionSearchSecretItem(MapDungeonEntity currentDungeon, MapEntity currentMap, List<MapDungeonEntity> mappedDungeons, HeroEntity hero) {
+    private String actionSearchSecretItem(MapDungeonEntity currentDungeon, MapEntity currentMap, HeroEntity hero) {
         String message = "";
         if(currentDungeon.getDungeon().getId() == 1 || currentDungeon.getDungeon().getId() == 2){
             message = "You can't search for items here";
@@ -364,18 +363,17 @@ public class MapServiceImpl implements MapService {
 
         mapDungeonRepository.save(currentDungeon);
         heroService.saveHero(hero);
-        return this.createMapDto(currentMap.getId(), message, this.createActions(currentMap, mappedDungeons));
+        return message;
     }
 
     /**
      * Handles fight action
      * @param currentDungeon - MapDungeonEntity object
      * @param currentMap - MapEntity object
-     * @param mappedDungeons - List of MapDungeonEntity objects
      * @param hero - HeroEntity object
-     * @return MapDto object
+     * @return message
      */
-    private MapDto actionFight(MapDungeonEntity currentDungeon, MapEntity currentMap, List<MapDungeonEntity> mappedDungeons, HeroEntity hero){
+    private String actionFight(MapDungeonEntity currentDungeon, MapEntity currentMap, HeroEntity hero){
         String message = "";
         if(currentDungeon.getMonster() == null || currentDungeon.isMonsterFriend()){
             message =  "Invalid action";
@@ -405,6 +403,8 @@ public class MapServiceImpl implements MapService {
                     inventoryService.addHeroItemToInventory(hero.getId(), currentDungeon.getMonsterItem().getId());
                 }
                 currentDungeon.setMonsterFriend(true);
+                hero.setCoins(hero.getCoins() + currentDungeon.getMonster().getDamage());
+                hero.setDamage(hero.getDamage() - new Random().nextInt(15));
                 message = "Well done adventurer, you defeated " + currentDungeon.getMonster().getName() + " and got " + currentDungeon.getMonsterItem().getName() + " from him. Your current health is " + hero.getHealth();
                 currentDungeon.setMonsterItem(null);
                 currentDungeon.setMonster(null);
@@ -413,18 +413,17 @@ public class MapServiceImpl implements MapService {
         }
 
         heroService.saveHero(hero);
-        return this.createMapDto(currentMap.getId(), message, this.createActions(currentMap, mappedDungeons));
+        return message;
     }
 
     /**
      * Handles befriend action
      * @param currentDungeon - MapDungeonEntity object
      * @param currentMap - MapEntity object
-     * @param mappedDungeons - List of MapDungeonEntity objects
      * @param hero - HeroEntity object
-     * @return MapDto object
+     * @return message
      */
-    private MapDto actionBefriend(MapDungeonEntity currentDungeon, MapEntity currentMap, List<MapDungeonEntity> mappedDungeons, HeroEntity hero) {
+    private String actionBefriend(MapDungeonEntity currentDungeon, MapEntity currentMap, HeroEntity hero) {
         String message = "";
         if(currentDungeon.getMonster() == null){
             message = "No monster in this dungeon!";
@@ -444,23 +443,22 @@ public class MapServiceImpl implements MapService {
                 }
                 currentDungeon.setMonsterItem(null);
             } else{
-                return this.actionFight(currentDungeon, currentMap, mappedDungeons, hero);
+                return this.actionFight(currentDungeon, currentMap, hero);
             }
         }
 
         mapDungeonRepository.save(currentDungeon);
-        return this.createMapDto(currentMap.getId(), message, this.createActions(currentMap, mappedDungeons));
+        return message;
     }
 
     /**
      * Handles flee action
      * @param currentDungeon - MapDungeonEntity object
      * @param currentMap - MapEntity object
-     * @param mappedDungeons - List of MapDungeonEntity objects
      * @param hero - HeroEntity object
-     * @return MapDto object
+     * @return message object
      */
-    private MapDto actionFlee(MapDungeonEntity currentDungeon, MapEntity currentMap, List<MapDungeonEntity> mappedDungeons, HeroEntity hero) {
+    private String actionFlee(MapDungeonEntity currentDungeon, MapEntity currentMap, HeroEntity hero) {
         String message = "";
         if(currentDungeon.getMonster() == null || currentDungeon.isMonsterFriend()){
             message = "Invalid action! No monster to fight";
@@ -476,6 +474,6 @@ public class MapServiceImpl implements MapService {
         }
 
         mapRepository.save(currentMap);
-        return this.createMapDto(currentMap.getId(), message, this.createActions(currentMap, mappedDungeons));
+        return message;
     }
 }

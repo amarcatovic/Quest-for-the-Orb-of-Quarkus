@@ -4,12 +4,17 @@ import ba.codecta.game.helper.MapAction;
 import ba.codecta.game.helper.MoveDirection;
 import ba.codecta.game.repository.GameRepository;
 import ba.codecta.game.repository.entity.*;
+import ba.codecta.game.security.JwtGenerator;
 import ba.codecta.game.services.*;
 import ba.codecta.game.services.model.*;
+import io.quarkus.vertx.ConsumeEvent;
+import org.modelmapper.ModelMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -43,7 +48,7 @@ public class GameServiceImpl implements GameService {
      * @return
      */
     @Override
-    public GameResponseDto createNewGame(NewGameDto newGameDto) {
+    public GameCreateResponseDto createNewGame(NewGameDto newGameDto) {
         HeroDto newHero = heroService.createHero(newGameDto.getHeroName(), newGameDto.getHeroDescription());
         MapDto createdMapInfo = mapService.createMap(1);
         LevelEntity newLevel = levelService.createLevel(1, createdMapInfo.getId());
@@ -51,7 +56,7 @@ public class GameServiceImpl implements GameService {
         GameEntity newGame = new GameEntity(heroService.getHeroEntityById(newHero.getId()), newLevel);
         newGame = gameRepository.add(newGame);
 
-        return this.createGameResponseDtoResult(newGame.getId(), newHero, createdMapInfo);
+        return this.createGameCreateResponseDto(newGame.getId(), newHero, createdMapInfo);
     }
 
     /**
@@ -63,28 +68,28 @@ public class GameServiceImpl implements GameService {
     @Override
     public GameResponseDto handleMoveAction(Integer gameId, String direction) {
         GameEntity game = this.getGameEntity(gameId);
-        if(this.isHeroDead(this.heroService.getHeroEntityById(game.getHero().getId()))){
+        if(this.isHeroDead(this.heroService.getHeroEntityById(game.getHero().getId())) || game.getDateFinished() != null){
             return null;
         }
-        MapDto mapDto = null;
+        String message = "";
 
         direction = direction.toLowerCase();
         switch (direction){
             case "left":
-                mapDto = mapService.move(game.getLevel().getMap().getId(), MoveDirection.LEFT);
+                message = mapService.move(game.getLevel().getMap().getId(), MoveDirection.LEFT);
                 break;
             case "up":
-                mapDto = mapService.move(game.getLevel().getMap().getId(), MoveDirection.UP);
+                message = mapService.move(game.getLevel().getMap().getId(), MoveDirection.UP);
                 break;
             case "down":
-                mapDto = mapService.move(game.getLevel().getMap().getId(), MoveDirection.DOWN);
+                message = mapService.move(game.getLevel().getMap().getId(), MoveDirection.DOWN);
                 break;
             case "right":
-                mapDto = mapService.move(game.getLevel().getMap().getId(), MoveDirection.RIGHT);
+                message = mapService.move(game.getLevel().getMap().getId(), MoveDirection.RIGHT);
                 break;
         }
 
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), message);
     }
 
     /**
@@ -97,28 +102,28 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleAction(Integer gameId, String action) {
         GameEntity game = this.getGameEntity(gameId);
         HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
-        if(this.isHeroDead(hero)){
+        if(this.isHeroDead(hero) || game.getDateFinished() != null){
             return null;
         }
-        MapDto mapDto = null;
+        String message = null;
 
         action = action.toLowerCase();
         switch (action){
             case "fight":
-                mapDto = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.FIGHT);
+                message = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.FIGHT);
                 break;
             case "flee":
-                mapDto = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.FLEE);
+                message = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.FLEE);
                 break;
             case "befriend":
-                mapDto = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.BEFRIEND);
+                message = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.BEFRIEND);
                 break;
             case "search-items":
-                mapDto = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.SEARCH_SECRET_ITEM);
+                message = mapService.action(hero.getId(), game.getLevel().getMap().getId(), MapAction.SEARCH_SECRET_ITEM);
                 break;
         }
 
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), message);
     }
 
     /**
@@ -130,7 +135,7 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleHealAction(Integer gameId) {
         GameEntity game = this.getGameEntity(gameId);
         HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
-        if(this.isHeroDead(hero)){
+        if(this.isHeroDead(hero) || game.getDateFinished() != null){
             return null;
         }
         InventoryDto inventoryDto = inventoryService.getHeroInventory(hero.getId());
@@ -153,8 +158,7 @@ public class GameServiceImpl implements GameService {
             heroService.saveHero(hero);
         }
 
-        MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), message);
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), message);
     }
 
     /**
@@ -167,7 +171,7 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleInventoryAction(Integer gameId, Integer itemId) {
         GameEntity game = this.getGameEntity(gameId);
         HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
-        if(this.isHeroDead(hero)){
+        if(this.isHeroDead(hero) || game.getDateFinished() != null){
             return null;
         }
         InventoryDto inventoryDto = inventoryService.getHeroInventory(hero.getId());
@@ -192,8 +196,7 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), "Item used");
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId() ,"Item used");
     }
 
     /**
@@ -221,10 +224,11 @@ public class GameServiceImpl implements GameService {
     public GameResponseDto handleShopAction(Integer gameId, Integer itemId, String itemType) {
         GameEntity game = this.getGameEntity(gameId);
         MapEntity map = mapService.getMap(game.getLevel().getMap().getId());
-        if(!(map.getPlayerLocationX() == 0 && map.getPlayerLocationY() == 0)){
+        HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+        if(!(map.getPlayerLocationX() == 0 && map.getPlayerLocationY() == 0) || this.isHeroDead(hero) || game.getDateFinished() != null){
             return null;
         }
-        HeroEntity hero = this.heroService.getHeroEntityById(game.getHero().getId());
+
         if(itemType.toLowerCase().equals("weapon")){
             WeaponEntity weapon = weaponService.getWeaponById(itemId);
             if(weapon == null){
@@ -245,8 +249,74 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        MapDto mapDto = mapService.getStatus(game.getLevel().getMap().getId(), "Item bought");
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()) ,mapDto);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), "Item bought");
+    }
+
+    /**
+     *
+     * @param heroId
+     * @return
+     */
+    @Override
+    public GameCreateResponseDto createNewLevel(Integer heroId) {
+        List<GameEntity> heroGames = this.getHeroGames(heroId);
+
+        Integer numberOfPlayerOrbsInInventory = 0;
+        InventoryDto inventoryDto = inventoryService.getHeroInventory(heroId);
+        for(ItemDto item : inventoryDto.getItems()){
+            if(item.getName().equals("The Orb Of Quarkus")){
+                ++numberOfPlayerOrbsInInventory;
+            }
+        }
+
+        if(heroGames.size() != numberOfPlayerOrbsInInventory){
+            return null;
+        }
+
+        for(GameEntity game : heroGames){
+            if(game.getDateFinished() == null){
+                game.setDateFinished(LocalDateTime.now());
+                gameRepository.save(game);
+                break;
+            }
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        HeroDto hero = modelMapper.map(this.heroService.getHeroEntityById(heroId), HeroDto.class);
+        MapDto createdMapInfo = mapService.createMap(numberOfPlayerOrbsInInventory + 1);
+        LevelEntity newLevel = levelService.createLevel(numberOfPlayerOrbsInInventory + 1, createdMapInfo.getId());
+
+        GameEntity newGame = new GameEntity(heroService.getHeroEntityById(hero.getId()), newLevel);
+        newGame = gameRepository.add(newGame);
+
+        return this.createGameCreateResponseDto(newGame.getId(), hero, createdMapInfo);
+    }
+
+    /**
+     *
+     * @param gameId
+     * @param heroDto
+     * @param message
+     * @return
+     */
+    private GameResponseDto createGameResponseDtoResult(Integer gameId, HeroDto heroDto, Integer mapId, String message){
+        if(gameId < 1 || heroDto == null || message.equals("")){
+            return null;
+        }
+
+        MapEntity map = mapService.getMap(mapId);
+        GameResponseDto result = new GameResponseDto();
+        result.setGameId(gameId);
+        result.setHero(heroDto);
+        result.setMessage(message);
+        result.setActions(mapService.createActions(map));
+        MapDungeonEntity mapDungeonEntity = mapService.getCurrentPlayerDungeonLocation(map.getId(), map.getPlayerLocationX(), map.getPlayerLocationY());
+        ModelMapper modelMapper = new ModelMapper();
+        result.setCurrentDungeon(modelMapper.map(mapDungeonEntity, MapDungeonDto.class));
+        InventoryDto playerInventory = inventoryService.getHeroInventory(heroDto.getId());
+        result.setInventory(playerInventory);
+
+        return result;
     }
 
     /**
@@ -256,17 +326,21 @@ public class GameServiceImpl implements GameService {
      * @param mapDto
      * @return
      */
-    private GameResponseDto createGameResponseDtoResult(Integer gameId, HeroDto heroDto, MapDto mapDto){
+    private GameCreateResponseDto createGameCreateResponseDto(Integer gameId, HeroDto heroDto, MapDto mapDto){
         if(gameId < 1 || heroDto == null || mapDto == null){
             return null;
         }
 
-        GameResponseDto result = new GameResponseDto();
+        GameCreateResponseDto result = new GameCreateResponseDto();
         result.setGameId(gameId);
         result.setHero(heroDto);
-        result.setMapInfo(mapDto);
+        result.setMessage(mapDto.getMessage());
+        result.setActions(mapDto.getActions());
+        result.setCurrentDungeon(mapDto.getCurrentDungeon());
+        result.setDungeons(mapDto.getDungeons());
         InventoryDto playerInventory = inventoryService.getHeroInventory(heroDto.getId());
         result.setInventory(playerInventory);
+        result.setToken(JwtGenerator.generateJwtToken(gameId, heroDto.getId(), heroDto.getName()));
 
         return result;
     }
@@ -294,16 +368,8 @@ public class GameServiceImpl implements GameService {
      * @param heroId
      * @return
      */
-    private Integer getNumberOfUnfinishedGames(Integer heroId){
-        List<GameEntity> games = this.getHeroGames(heroId);
-        Integer result = 0;
-        for(GameEntity game : games){
-            if (game.getDateFinished() == null){
-                ++result;
-            }
-        }
-
-        return  result;
+    private List<GameEntity> getNumberOfUnfinishedGames(Integer heroId){
+        return  this.getHeroGames(heroId);
     }
 
     /**
