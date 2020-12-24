@@ -3,7 +3,6 @@ package ba.codecta.game.services.model;
 import java.util.List;
 
 public class GameCreateResponseDto {
-    private Integer gameId;
     private String message;
     private HeroDto hero;
     private List<String> actions;
@@ -11,14 +10,6 @@ public class GameCreateResponseDto {
     private InventoryDto inventory;
     private List<MapDungeonDto> dungeons;
     private String token;
-
-    public Integer getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(Integer gameId) {
-        this.gameId = gameId;
-    }
 
     public HeroDto getHero() {
         return hero;

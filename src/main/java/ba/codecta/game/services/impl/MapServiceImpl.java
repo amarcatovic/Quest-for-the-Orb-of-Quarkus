@@ -69,18 +69,17 @@ public class MapServiceImpl implements MapService {
                 MonsterEntity monster = null;
                 ItemEntity monsterItem = null;
                 DungeonEntity dungeon = dungeons.get(new Random().nextInt(dungeons.size() - 2) + 2);
-                if(new Random().nextInt(100) > 40){
+                if(new Random().nextInt(100) > 40 || (!isKeyGivenToMonster && (i == 1 + levelWeightFactor && j == 2))){
                     monster = monsters.get(new Random().nextInt(monsters.size() - 1) + 1);
                     monsterItem = items.get(new Random().nextInt(items.size() - 2) + 2);
                     if(!isKeyGivenToMonster){
-                        if(new Random().nextInt() > 40){
+                        if(new Random().nextInt() > 40 || (i == 1 + levelWeightFactor && j == 2)){
                             monsterItem = items.get(1);
                             isKeyGivenToMonster = true;
                         }
                     }
                 }
-
-                ItemEntity secretItem = items.get(new Random().nextInt(items.size()));
+                ItemEntity secretItem = items.get(new Random().nextInt(items.size() - 2) + 2);
                 this.addMapDungeon(newMap, dungeon, monster, monsterItem, secretItem,i, j);
             }
         }
@@ -191,7 +190,6 @@ public class MapServiceImpl implements MapService {
     @Override
     public MapDto getStatus(Integer mapId, String message) {
         MapEntity currentMap = this.getMap(mapId);
-        List<MapDungeonEntity> mappedDungeons = this.getMappedDungeons(mapId);
         return this.createMapDto(mapId, message, this.createActions(currentMap));
     }
 
@@ -430,6 +428,9 @@ public class MapServiceImpl implements MapService {
         }
         else if(currentDungeon.getMonster() != null && currentDungeon.isMonsterFriend()){
             message = "Monster is already a friend";
+        }
+        else if(currentDungeon.getMonster().getName().equals("The Orb Boss")){
+            message = "You can't be friends with the Boss monster! Fight him!";
         }
         else{
             if(new Random().nextInt(100) > 70){

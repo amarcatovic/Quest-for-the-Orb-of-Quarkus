@@ -33,8 +33,7 @@ public class MapDungeonRepository extends Repository<MapDungeonEntity, Integer>{
         CriteriaQuery<MapDungeonEntity> cq = cb.createQuery(MapDungeonEntity.class);
         Root<MapDungeonEntity> root = cq.from(MapDungeonEntity.class);
         CriteriaQuery<MapDungeonEntity> all = cq.select(root);
-        all.where(cb.equal(root.get("map"), mapId));
-        all.where(cb.equal(root.get("locationX"), x), cb.equal(root.get("locationY"), y));
+        all.where(cb.equal(root.get("locationX"), x), cb.equal(root.get("locationY"), y), cb.equal(root.get("map"), mapId));
         TypedQuery<MapDungeonEntity> allQuery = entityManager.createQuery(all);
         return allQuery.getSingleResult();
     }

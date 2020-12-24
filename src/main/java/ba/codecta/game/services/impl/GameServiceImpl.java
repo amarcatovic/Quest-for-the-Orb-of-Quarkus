@@ -7,14 +7,12 @@ import ba.codecta.game.repository.entity.*;
 import ba.codecta.game.security.JwtGenerator;
 import ba.codecta.game.services.*;
 import ba.codecta.game.services.model.*;
-import io.quarkus.vertx.ConsumeEvent;
 import org.modelmapper.ModelMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -43,9 +41,9 @@ public class GameServiceImpl implements GameService {
     WeaponService weaponService;
 
     /**
-     *
-     * @param newGameDto
-     * @return
+     * Creates new game for level 1 based on players inputed values
+     * @param newGameDto - NewGameDto object
+     * @return GameCreateResponseDto object
      */
     @Override
     public GameCreateResponseDto createNewGame(NewGameDto newGameDto) {
@@ -60,10 +58,10 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param direction
-     * @return
+     * Handles move action for every direction
+     * @param gameId - game id
+     * @param direction - direction
+     * @return GameResponseDto object
      */
     @Override
     public GameResponseDto handleMoveAction(Integer gameId, String direction) {
@@ -93,10 +91,10 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param action
-     * @return
+     * Handles hero monster action
+     * @param gameId - game id
+     * @param action - action
+     * @return GameResponseDto object
      */
     @Override
     public GameResponseDto handleAction(Integer gameId, String action) {
@@ -127,9 +125,9 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @return
+     * Handles hero heal action
+     * @param gameId - game id
+     * @return GameResponseDto object
      */
     @Override
     public GameResponseDto handleHealAction(Integer gameId) {
@@ -142,9 +140,10 @@ public class GameServiceImpl implements GameService {
         String message = "Unable to heal! No healing items";
 
         ItemDto mostEfficientItem = null;
-        Integer itemDifferenceToMaxHealth = 100;
+        int itemDifferenceToMaxHealth = 100;
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getItemTypeName().equals("Healing Potion")){
+                System.out.println("difference: " + (Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)));
                 if(Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)){
                     mostEfficientItem = item;
                 }
@@ -162,10 +161,10 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param itemId
-     * @return
+     * Handles hero inventory usage action
+     * @param gameId - game id
+     * @param itemId - inventory item id
+     * @return GameResponseDto object
      */
     @Override
     public GameResponseDto handleInventoryAction(Integer gameId, Integer itemId) {
@@ -174,16 +173,20 @@ public class GameServiceImpl implements GameService {
         if(this.isHeroDead(hero) || game.getDateFinished() != null){
             return null;
         }
+
+        String message = "Item was not found in inventory";
         InventoryDto inventoryDto = inventoryService.getHeroInventory(hero.getId());
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getId().equals(itemId)){
                 if(item.getItemTypeName().equals("Healing Potion")){
+                    message = item.getName() + " used";
                     hero.setHealth(hero.getHealth() + item.getBonus());
                     if(hero.getHealth() > 100){
                         hero.setHealth(100);
                     }
                     inventoryService.removeItemFromInventory(hero.getId(), itemId);
                 } else if(item.getItemTypeName().equals("Strength Snacks")){
+                    message = item.getName() + " used";
                     hero.setDamage(hero.getDamage() + item.getBonus());
                     if(hero.getDamage() > 100){
                         hero.setDamage(100);
@@ -196,12 +199,12 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId() ,"Item used");
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId() ,message);
     }
 
     /**
-     *
-     * @return
+     * Returns all items that player can buy
+     * @return ShopItemsDto object
      */
     @Override
     public ShopItemsDto getShopItems() {
@@ -214,11 +217,11 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param itemId
-     * @param itemType
-     * @return
+     * Handles hero shop action
+     * @param gameId - game id
+     * @param itemId - item for purchase id
+     * @param itemType - item type
+     * @return GameResponseDto object
      */
     @Override
     public GameResponseDto handleShopAction(Integer gameId, Integer itemId, String itemType) {
@@ -229,6 +232,7 @@ public class GameServiceImpl implements GameService {
             return null;
         }
 
+        String message = "No item was bought";
         if(itemType.toLowerCase().equals("weapon")){
             WeaponEntity weapon = weaponService.getWeaponById(itemId);
             if(weapon == null){
@@ -236,6 +240,7 @@ public class GameServiceImpl implements GameService {
             }
             if(hero.getCoins() >= weapon.getPrice()){
                 hero.setWeapon(weapon);
+                message = "Weapon, " + weapon.getName() + " bought";
                 hero.setCoins(hero.getCoins() - weapon.getPrice());
             }
         } else if(itemType.toLowerCase().equals("item")){
@@ -244,24 +249,25 @@ public class GameServiceImpl implements GameService {
                 return null;
             }
             if(hero.getCoins() >= item.getBonus()){
+                message = item.getItemType().getName() + ", " + item.getName() + " bought";
                 inventoryService.addHeroItemToInventory(hero.getId(), itemId);
                 hero.setCoins(hero.getCoins() - item.getBonus());
             }
         }
 
-        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), "Item bought");
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), message);
     }
 
     /**
-     *
-     * @param heroId
-     * @return
+     * Creates new level based on previous hero achievements
+     * @param heroId - hero id
+     * @return GameCreateResponseDto object
      */
     @Override
     public GameCreateResponseDto createNewLevel(Integer heroId) {
         List<GameEntity> heroGames = this.getHeroGames(heroId);
 
-        Integer numberOfPlayerOrbsInInventory = 0;
+        int numberOfPlayerOrbsInInventory = 0;
         InventoryDto inventoryDto = inventoryService.getHeroInventory(heroId);
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getName().equals("The Orb Of Quarkus")){
@@ -293,11 +299,11 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param heroDto
-     * @param message
-     * @return
+     * Creates game response result
+     * @param gameId - game id
+     * @param heroDto - HeroDto object
+     * @param message - message to be displayed to player
+     * @return GameResponseDto object
      */
     private GameResponseDto createGameResponseDtoResult(Integer gameId, HeroDto heroDto, Integer mapId, String message){
         if(gameId < 1 || heroDto == null || message.equals("")){
@@ -306,7 +312,6 @@ public class GameServiceImpl implements GameService {
 
         MapEntity map = mapService.getMap(mapId);
         GameResponseDto result = new GameResponseDto();
-        result.setGameId(gameId);
         result.setHero(heroDto);
         result.setMessage(message);
         result.setActions(mapService.createActions(map));
@@ -320,11 +325,11 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @param heroDto
-     * @param mapDto
-     * @return
+     * Creates game response when a new game or level has been created
+     * @param gameId - game id
+     * @param heroDto - HeroDto object
+     * @param mapDto - MapDto object
+     * @return GameCreateResponseDto object
      */
     private GameCreateResponseDto createGameCreateResponseDto(Integer gameId, HeroDto heroDto, MapDto mapDto){
         if(gameId < 1 || heroDto == null || mapDto == null){
@@ -332,7 +337,6 @@ public class GameServiceImpl implements GameService {
         }
 
         GameCreateResponseDto result = new GameCreateResponseDto();
-        result.setGameId(gameId);
         result.setHero(heroDto);
         result.setMessage(mapDto.getMessage());
         result.setActions(mapDto.getActions());
@@ -346,36 +350,27 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     *
-     * @param gameId
-     * @return
+     * Gets GameEntity object from database
+     * @param gameId - game id
+     * @return GameEntity object
      */
     private GameEntity getGameEntity(Integer gameId){
         return gameRepository.findById(gameId);
     }
 
     /**
-     *
-     * @param heroId
-     * @return
+     * Gets all games that contain current hero from database
+     * @param heroId - hero id
+     * @return list of GameEntity objects
      */
     private List<GameEntity> getHeroGames(Integer heroId){
         return gameRepository.getAllHeroGames(heroId);
     }
 
     /**
-     *
-     * @param heroId
-     * @return
-     */
-    private List<GameEntity> getNumberOfUnfinishedGames(Integer heroId){
-        return  this.getHeroGames(heroId);
-    }
-
-    /**
-     *
-     * @param hero
-     * @return
+     * Finds out if hero is dead based on his current health
+     * @param hero HeroEntity object
+     * @return true if hero is dead, false otherwise
      */
     private boolean isHeroDead(HeroEntity hero){
         return hero.getHealth() <= 0;

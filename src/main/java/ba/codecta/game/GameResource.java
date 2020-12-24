@@ -54,16 +54,19 @@ public class GameResource {
     }
 
     /**
-     * POST /game/new-level?heroId={Hero Id}
+     * POST /game/new-level
      * Creates new game level if player has killed the boss monster
-     * @param heroId - id of existing hero
+     * @param ctx - SecurityContext Object
      * @return GameCreateResponseDto object
      */
     @POST
     @Path("/new-level")
-    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewGame(@QueryParam("heroId") Integer heroId){
+    public Response createNewLevel(@Context SecurityContext ctx){
+        Integer heroId = this.getHeroIdFromToken(ctx);
+        if(heroId == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameCreateResponseDto result = gameService.createNewLevel(heroId);
             if(result == null){
@@ -78,17 +81,20 @@ public class GameResource {
     }
 
     /**
-     * POST /game/{Game Id}/move?direction={up | right | down | left}
+     * POST /game/move?direction={up | right | down | left}
      * Handles heroes move
-     * @param id - game Id
      * @param direction direction
+     * @param ctx - SecurityContext Object
      * @return GameResponseDto object
      */
     @POST
-    @Path("/{id}/move")
+    @Path("/move")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleMoveAction(@PathParam("id") Integer id, @QueryParam("direction") String direction, @Context SecurityContext ctx){
-        System.out.println(this.getGameIdFromToken(ctx));
+    public Response handleMoveAction(@QueryParam("direction") String direction, @Context SecurityContext ctx){
+        Integer id = this.getGameIdFromToken(ctx);
+        if(id == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameResponseDto result = gameService.handleMoveAction(id, direction);
             if(result == null){
@@ -103,15 +109,19 @@ public class GameResource {
     }
 
     /**
-     * POST /game/{Game Id}/action?type={fight | flee | befriend | search-items}
-     * @param id - game Id
+     * POST /game/action?type={fight | flee | befriend | search-items}
+     * @param ctx - SecurityContext Object
      * @param type action type
      * @return GameResponseDto object
      */
     @POST
-    @Path("/{id}/action")
+    @Path("/action")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleAction(@PathParam("id") Integer id, @QueryParam("type") String type){
+    public Response handleAction(@Context SecurityContext ctx, @QueryParam("type") String type){
+        Integer id = this.getGameIdFromToken(ctx);
+        if(id == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameResponseDto result = gameService.handleAction(id, type);
             if(result == null){
@@ -126,15 +136,19 @@ public class GameResource {
     }
 
     /**
-     * PUT /game/{Game Id}/heal
+     * PUT /game/heal
      * Finds the most efficient healing item and applies it so that the player is closest to maximum health
-     * @param id - game id
+     * @param ctx - SecurityContext Object
      * @return GameResponseDto object
      */
     @PUT
-    @Path("/{id}/heal")
+    @Path("/heal")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleHealAction(@PathParam("id") Integer id){
+    public Response handleHealAction(@Context SecurityContext ctx){
+        Integer id = this.getGameIdFromToken(ctx);
+        if(id == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameResponseDto result = gameService.handleHealAction(id);
             if(result == null){
@@ -149,16 +163,20 @@ public class GameResource {
     }
 
     /**
-     * PUT /game/{Game Id}/inventory/use/{Item Id}
+     * PUT /game/inventory/use/{Item Id}
      * Uses item from the inventory
-     * @param id - game id
+     * @param ctx - SecurityContext Object
      * @param itemId - id of an item from inventory
      * @return GameResponseDto object
      */
     @PUT
-    @Path("/{id}/inventory/use/{itemId}")
+    @Path("/inventory/use/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleHealAction(@PathParam("id") Integer id, @PathParam("itemId") Integer itemId){
+    public Response handleHealAction(@Context SecurityContext ctx, @PathParam("itemId") Integer itemId){
+        Integer id = this.getGameIdFromToken(ctx);
+        if(id == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameResponseDto result = gameService.handleInventoryAction(id, itemId);
             if(result == null){
@@ -195,14 +213,19 @@ public class GameResource {
     }
 
     /**
-     * GET /game/{Game Id}/shop/{Item Id}?type={weapon | item}
+     * GET /game/shop/{Item Id}?type={weapon | item}
      * Buys item or weapon from shop
+     * @param ctx - SecurityContext Object
      * @return - GameResponseDto object
      */
     @POST
-    @Path("{id}/shop/{itemId}")
+    @Path("/shop/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getShopItems(@PathParam("id") Integer id, @PathParam("itemId") Integer itemId, @QueryParam("type") String type){
+    public Response getShopItems(@Context SecurityContext ctx, @PathParam("itemId") Integer itemId, @QueryParam("type") String type){
+        Integer id = this.getGameIdFromToken(ctx);
+        if(id == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
             GameResponseDto result = gameService.handleShopAction(id, itemId, type);
             if(result == null){
@@ -217,9 +240,9 @@ public class GameResource {
     }
 
     /**
-     *
-     * @param ctx
-     * @return
+     * Extracts Game Id from token
+     * @param ctx - SecurityContext object
+     * @return null if there is no token, Game Id otherwise
      */
     private Integer getGameIdFromToken(SecurityContext ctx){
         if(jwt.getClaimNames() == null){
@@ -227,5 +250,18 @@ public class GameResource {
         }
 
         return Integer.parseInt(jwt.getClaim("gameId").toString());
+    }
+
+    /**
+     * Extracts Hero Id from token
+     * @param ctx - SecurityContext object
+     * @return null if there is no token, Hero Id otherwise
+     */
+    private Integer getHeroIdFromToken(SecurityContext ctx){
+        if(jwt.getClaimNames() == null){
+            return null;
+        }
+
+        return Integer.parseInt(jwt.getClaim("heroId").toString());
     }
 }
