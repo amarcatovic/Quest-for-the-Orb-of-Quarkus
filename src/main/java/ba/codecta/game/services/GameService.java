@@ -16,4 +16,5 @@ public interface GameService {
     ShopItemsDto getShopItems();
     GameResponseDto handleShopAction(Integer gameId, Integer itemId, String itemType);
     GameCreateResponseDto createNewLevel(Integer heroId);
+    GameResponseDto getCurrentHeroState(Integer gameId, Integer heroId);
 }

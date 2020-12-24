@@ -143,7 +143,6 @@ public class GameServiceImpl implements GameService {
         int itemDifferenceToMaxHealth = 100;
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getItemTypeName().equals("Healing Potion")){
-                System.out.println("difference: " + (Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)));
                 if(Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)){
                     mostEfficientItem = item;
                 }
@@ -296,6 +295,18 @@ public class GameServiceImpl implements GameService {
         newGame = gameRepository.add(newGame);
 
         return this.createGameCreateResponseDto(newGame.getId(), hero, createdMapInfo);
+    }
+
+    /**
+     * Returns heroes information
+     * @param gameId - game id
+     * @param heroId - hero id
+     * @return GameResponseDto object
+     */
+    @Override
+    public GameResponseDto getCurrentHeroState(Integer gameId, Integer heroId) {
+        GameEntity game = this.getGameEntity(gameId);
+        return this.createGameResponseDtoResult(gameId, this.heroService.getHeroById(game.getHero().getId()), game.getLevel().getMap().getId(), "Got lost adventurer? I've got your back");
     }
 
     /**

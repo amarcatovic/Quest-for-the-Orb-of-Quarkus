@@ -240,6 +240,33 @@ public class GameResource {
     }
 
     /**
+     *
+     * @param ctx - SecurityContext object
+     * @return GameResponseDto object
+     */
+    @GET
+    @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGameStatus(@Context SecurityContext ctx){
+        Integer gameId = this.getGameIdFromToken(ctx);
+        Integer heroId = this.getHeroIdFromToken(ctx);
+        if(gameId == null || heroId == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        try{
+            GameResponseDto result = gameService.getCurrentHeroState(gameId, heroId);
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    /**
      * Extracts Game Id from token
      * @param ctx - SecurityContext object
      * @return null if there is no token, Game Id otherwise
