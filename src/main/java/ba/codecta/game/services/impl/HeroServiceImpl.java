@@ -3,6 +3,7 @@ package ba.codecta.game.services.impl;
 import ba.codecta.game.repository.HeroRepository;
 import ba.codecta.game.repository.entity.HeroEntity;
 import ba.codecta.game.services.HeroService;
+import ba.codecta.game.services.UserService;
 import ba.codecta.game.services.model.HeroDto;
 import org.modelmapper.ModelMapper;
 
@@ -18,9 +19,13 @@ public class HeroServiceImpl implements HeroService {
     @Inject
     HeroRepository heroRepository;
 
+    @Inject
+    UserService userService;
+
     @Override
-    public HeroDto createHero(String name, String backStory) {
+    public HeroDto createHero(String name, String backStory, Integer userId) {
         HeroEntity newHero = new HeroEntity(name, backStory, 100, 80, 100, null);
+        newHero.setUser(userService.getUserById(userId));
         newHero = heroRepository.add(newHero);
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(newHero, HeroDto.class);

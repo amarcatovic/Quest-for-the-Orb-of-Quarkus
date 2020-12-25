@@ -46,8 +46,8 @@ public class GameServiceImpl implements GameService {
      * @return GameCreateResponseDto object
      */
     @Override
-    public GameCreateResponseDto createNewGame(NewGameDto newGameDto) {
-        HeroDto newHero = heroService.createHero(newGameDto.getHeroName(), newGameDto.getHeroDescription());
+    public GameCreateResponseDto createNewGame(NewGameDto newGameDto, Integer userId) {
+        HeroDto newHero = heroService.createHero(newGameDto.getHeroName(), newGameDto.getHeroDescription(), userId);
         MapDto createdMapInfo = mapService.createMap(1);
         LevelEntity newLevel = levelService.createLevel(1, createdMapInfo.getId());
 
@@ -140,17 +140,21 @@ public class GameServiceImpl implements GameService {
         String message = "Unable to heal! No healing items";
 
         ItemDto mostEfficientItem = null;
-        int itemDifferenceToMaxHealth = 100;
+        int itemDifferenceToMaxHealth = 1000;
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getItemTypeName().equals("Healing Potion")){
                 if(Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)){
                     mostEfficientItem = item;
+                    itemDifferenceToMaxHealth = Math.abs(100 - hero.getHealth() + item.getBonus());
                 }
             }
         }
 
         if(mostEfficientItem != null){
             hero.setHealth(hero.getHealth() + mostEfficientItem.getBonus());
+            if(hero.getHealth() > 100){
+                hero.setHealth(100);
+            }
             message = hero.getName() + " used " + mostEfficientItem.getName() + " to gain " + mostEfficientItem.getBonus() + " HP. Current HP: " + hero.getHealth();
             inventoryService.removeItemFromInventory(hero.getId(), mostEfficientItem.getId());
             heroService.saveHero(hero);
@@ -310,6 +314,16 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
+     * Finds all hero games
+     * @param heroId - hero id
+     * @return List of Hero games
+     */
+    @Override
+    public List<GameEntity> getAllHeroGames(Integer heroId) {
+        return this.getHeroGames(heroId);
+    }
+
+    /**
      * Creates game response result
      * @param gameId - game id
      * @param heroDto - HeroDto object
@@ -355,7 +369,7 @@ public class GameServiceImpl implements GameService {
         result.setDungeons(mapDto.getDungeons());
         InventoryDto playerInventory = inventoryService.getHeroInventory(heroDto.getId());
         result.setInventory(playerInventory);
-        result.setToken(JwtGenerator.generateJwtToken(gameId, heroDto.getId(), heroDto.getName()));
+        result.setToken(JwtGenerator.generateJwtToken(gameId, heroDto.getId(), heroDto.getName(), heroService.getHeroEntityById(heroDto.getId()).getUser().getId()));
 
         return result;
     }

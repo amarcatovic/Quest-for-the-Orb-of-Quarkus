@@ -34,6 +34,9 @@ public class HeroEntity extends ModelObject<Integer> {
     @ManyToOne
     private WeaponEntity weapon;
 
+    @ManyToOne
+    private UserEntity user;
+
     @OneToMany(mappedBy = "hero", fetch = FetchType.EAGER)
     private List<InventoryEntity> inventories = new ArrayList<>();
 
@@ -114,5 +117,13 @@ public class HeroEntity extends ModelObject<Integer> {
 
     public void setGames(List<GameEntity> games) {
         this.games = games;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }

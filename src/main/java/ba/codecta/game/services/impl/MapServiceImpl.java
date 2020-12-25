@@ -378,9 +378,9 @@ public class MapServiceImpl implements MapService {
         }else{
             while(hero.getHealth() > 0 && currentDungeon.getMonsterHP() > 0){
                 if(hero.getWeapon() != null){
-                    currentDungeon.setMonsterHP(currentDungeon.getMonsterHP() - (hero.getDamage() * hero.getWeapon().getDamage()) / (new Random().nextInt(4) + 1));
+                    currentDungeon.setMonsterHP(currentDungeon.getMonsterHP() - (hero.getDamage() + hero.getWeapon().getDamage()) / (new Random().nextInt(4) + 1));
                 } else {
-                    currentDungeon.setMonsterHP(currentDungeon.getMonsterHP() - (hero.getDamage()  / (new Random().nextInt(4) + 1)));
+                    currentDungeon.setMonsterHP(currentDungeon.getMonsterHP() - (hero.getDamage()  / (new Random().nextInt(3) + 1)));
                 }
 
                 if(currentDungeon.getMonsterHP() > 0){

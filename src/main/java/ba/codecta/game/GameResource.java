@@ -27,21 +27,69 @@ public class GameResource {
     GameService gameService;
 
     @Inject
+    UserService userService;
+
+    @Inject
     JsonWebToken jwt;
+
+    /**
+     * Registers new user
+     * @param userAuthDto - UserAuthDto object
+     * @return Status OK if user is registered, BAD_REQUEST otherwise
+     */
+    @POST
+    @Path("/auth/register")
+    @PermitAll
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response registerUser(UserAuthDto userAuthDto){
+        try{
+            boolean result = userService.register(userAuthDto);
+            if(!result){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok().build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+
+    @POST
+    @Path("/auth/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loginUser(UserAuthDto userAuthDto){
+        try{
+            UserDto result = userService.login(userAuthDto);
+            if(result == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            return Response.ok(result).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
 
     /**
      * POST /game
      * Creates new game, hero, level and map
+     * @param ctx - SecurityContext object
      * @param newGameDto - newGameDto object mapped from JSON
      * @return GameCreateResponseDto object
      */
     @POST
-    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response createNewGame(NewGameDto newGameDto){
+    public Response createNewGame(@Context SecurityContext ctx, NewGameDto newGameDto){
+        Integer userId = this.getUserIdFromToken(ctx);
+        if(userId == null){
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         try{
-            GameCreateResponseDto result = gameService.createNewGame(newGameDto);
+            GameCreateResponseDto result = gameService.createNewGame(newGameDto, userId);
             if(result == null){
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
@@ -213,12 +261,12 @@ public class GameResource {
     }
 
     /**
-     * GET /game/shop/{Item Id}?type={weapon | item}
+     * PUT /game/shop/{Item Id}?type={weapon | item}
      * Buys item or weapon from shop
      * @param ctx - SecurityContext Object
      * @return - GameResponseDto object
      */
-    @POST
+    @PUT
     @Path("/shop/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getShopItems(@Context SecurityContext ctx, @PathParam("itemId") Integer itemId, @QueryParam("type") String type){
@@ -240,21 +288,48 @@ public class GameResource {
     }
 
     /**
-     *
+     * Gets current game status
      * @param ctx - SecurityContext object
      * @return GameResponseDto object
      */
     @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getGameStatus(@Context SecurityContext ctx){
-        Integer gameId = this.getGameIdFromToken(ctx);
-        Integer heroId = this.getHeroIdFromToken(ctx);
-        if(gameId == null || heroId == null){
+    public Response getGameStatus(@Context SecurityContext ctx, @QueryParam("heroId") Integer id){
+            Integer gameId = this.getGameIdFromToken(ctx);
+            Integer heroId = this.getHeroIdFromToken(ctx);
+            if(gameId == null || heroId == null){
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+            try{
+                GameResponseDto result = gameService.getCurrentHeroState(gameId, heroId);
+                if(result == null){
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+                }
+
+                return Response.ok(result).build();
+
+            }catch (Exception e){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+    }
+
+    /**
+     * Finds current heroes game status
+     * @param heroId - heroes id
+     * @param ctx - SecurityContext object
+     * @return GameResponseDto object
+     */
+    @GET
+    @Path("/status/{heroId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findHeroesGameStatus(@Context SecurityContext ctx, @PathParam("heroId") Integer heroId) {
+        Integer userId = this.getUserIdFromToken(ctx);
+        if(userId == null){
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try{
-            GameResponseDto result = gameService.getCurrentHeroState(gameId, heroId);
+            GameResponseWithTokenDto result = userService.getHeroGame(userId, heroId);
             if(result == null){
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
@@ -265,6 +340,7 @@ public class GameResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
+
 
     /**
      * Extracts Game Id from token
@@ -290,5 +366,18 @@ public class GameResource {
         }
 
         return Integer.parseInt(jwt.getClaim("heroId").toString());
+    }
+
+    /**
+     * Extracts User Id from token
+     * @param ctx - SecurityContext object
+     * @return null if there is no token, User Id otherwise
+     */
+    private Integer getUserIdFromToken(SecurityContext ctx){
+        if(jwt.getClaimNames() == null){
+            return null;
+        }
+
+        return Integer.parseInt(jwt.getClaim("userId").toString());
     }
 }

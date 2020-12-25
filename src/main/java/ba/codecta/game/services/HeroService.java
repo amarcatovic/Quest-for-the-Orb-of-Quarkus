@@ -6,7 +6,7 @@ import ba.codecta.game.services.model.HeroDto;
 import java.util.List;
 
 public interface HeroService {
-    HeroDto createHero(String name, String backStory);
+    HeroDto createHero(String name, String backStory, Integer userId);
     HeroEntity saveHero(HeroEntity heroEntity);
     List<HeroDto> getAllHeroes();
     HeroDto getHeroById(Integer id);
