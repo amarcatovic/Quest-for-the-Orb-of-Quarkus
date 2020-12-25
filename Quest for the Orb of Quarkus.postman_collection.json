@@ -6,6 +6,68 @@
 	},
 	"item": [
 		{
+			"name": "Register User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"amar_catovic@hotmail.com\",\r\n    \"password\": \"amaramar\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/game/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"amar_catovic@hotmail.com\",\r\n    \"password\": \"amaramar\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/game/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create new game",
 			"request": {
 				"method": "POST",
@@ -18,7 +80,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"heroName\": \"Amazing Goat\",\r\n    \"heroDescription\": \"Superhero generated name based on my initials\",\r\n    \"email\": \"amarzenica@gmail.com\"\r\n}"
+					"raw": "{\r\n    \"heroName\": \"Amazing Goat\",\r\n    \"heroDescription\": \"Superhero generated name based on my initials\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/game",
@@ -415,26 +477,6 @@
 			"response": []
 		},
 		{
-			"name": "Get Shop Items",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/game/shop",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"game",
-						"shop"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Shop Items",
 			"request": {
 				"auth": {
@@ -442,15 +484,15 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ1cG4iOiJBbWF6aW5nIEdvYXQiLCJncm91cHMiOlsiSGVybyJdLCJnYW1lSWQiOjEsImhlcm9JZCI6MSwiaWF0IjoxNjA4ODI2ODQzLCJleHAiOjE2MDg4MjcxNDMsImp0aSI6InhIYURVV3RkakJKQThHVC1hVFFVU1EifQ.jYwBhzTz6LrLFdyjC3F5v_HuPRrA2vEOvogbfO2MAfdSjuPELZxUzSqmpEN9uZIR2SjF3f_8mnCx3AqMJp80St4FG2GGR7Df3cqCMpYQt8rAwGM69qx1AQeKIl0YDkS-PAENzj3C2iLV6M3kptRuJNf3HMFoAzjFjV2tNJGOFJK5zkLeM6ZlFKx__dN77OlWGZrnvWgy4dRzxpQVkMqaCIDCI-8DboqaIk56bzF6QR3XtGnhVjA2eDGUZUdvPdEJNJv5ESZ2FJw2Qt57zhbjvxNoRqqp3RcAogXB_mN_iDApXLWZ-Uewov74wgO147iXBZ20YVGMcbR7w8hpfX1UAg",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ1cG4iOiJBbWF6aW5nIEdvYXQiLCJncm91cHMiOlsiSGVybyJdLCJnYW1lSWQiOjEsImhlcm9JZCI6MSwiaWF0IjoxNjA4ODM3NDkxLCJleHAiOjE2MDg4Mzc3OTEsImp0aSI6ImZVSlFnSVlkVldQUUloNHl1SURWREEifQ.P6Rg32ua3vYT1PsMIQ4GTh6Va2iWaYpx7Uq73lo-F79ubjH8-FSOCDpJaYnZcoWhjodsfgCGXNUbeFnsB24dOYeBGhEOdcWjAGNW6gcP-bBgCEG4zBmGVvQ5IoMWydQibUmMblEKZHRXUgVwjWPPhPOyoUBMdNieqWY0SdGMfTr6UfhubNBfrS-tMrB76MPBJaUeh2Yku_f1kEWq9TtbX23_2ELSR0awN3tCOe_osy4pQz9cO7gncOI1IK4TfM_fcwtDEuayt2Hh9Qpd1Nygf4W-ncH4-vmSI7DX9s0pekIp4ldHJmoDAS9ta1JW0IyeCXY929UcWrgn2Wlr48WRyg",
 							"type": "string"
 						}
 					]
 				},
-				"method": "POST",
+				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/game/shop/5?type=item",
+					"raw": "http://localhost:8080/game/shop/9?type=item",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -459,7 +501,7 @@
 					"path": [
 						"game",
 						"shop",
-						"5"
+						"9"
 					],
 					"query": [
 						{
@@ -479,15 +521,15 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ1cG4iOiJBbWF6aW5nIEdvYXQiLCJncm91cHMiOlsiSGVybyJdLCJnYW1lSWQiOjEsImhlcm9JZCI6MSwiaWF0IjoxNjA4ODI2ODQzLCJleHAiOjE2MDg4MjcxNDMsImp0aSI6InhIYURVV3RkakJKQThHVC1hVFFVU1EifQ.jYwBhzTz6LrLFdyjC3F5v_HuPRrA2vEOvogbfO2MAfdSjuPELZxUzSqmpEN9uZIR2SjF3f_8mnCx3AqMJp80St4FG2GGR7Df3cqCMpYQt8rAwGM69qx1AQeKIl0YDkS-PAENzj3C2iLV6M3kptRuJNf3HMFoAzjFjV2tNJGOFJK5zkLeM6ZlFKx__dN77OlWGZrnvWgy4dRzxpQVkMqaCIDCI-8DboqaIk56bzF6QR3XtGnhVjA2eDGUZUdvPdEJNJv5ESZ2FJw2Qt57zhbjvxNoRqqp3RcAogXB_mN_iDApXLWZ-Uewov74wgO147iXBZ20YVGMcbR7w8hpfX1UAg",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ1cG4iOiJBbWF6aW5nIEdvYXQiLCJncm91cHMiOlsiSGVybyJdLCJnYW1lSWQiOjEsImhlcm9JZCI6MSwiaWF0IjoxNjA4ODM4MzQ2LCJleHAiOjE2MDg4Mzg2NDYsImp0aSI6Imp2dFBpaVkwT0tHaFF3TTE1UjZTeWcifQ.gKdYiCmDhgAurf5XOd5IcLop0gBddmfqHPXupn2-2ncvWha5MyU9thosYYgtfLbuxQGzG92-gG0H1k5Z5T7fdJd3W9Ua46tCF1ulf_6L5FIT8ZGHnNqTRvaalMCfi3kw9UVDIG9wUtPRjUM67a5zZ_TBIm-ZYR6gZgz65wkPt8VLHBAUMN0W8HYJr5Q-J4OqEhfDHnU9cV0C9k4tjesyvHMr7YEvF1OGNN74twDy59YEnAjqxfSaWND_M-oDp-8sohU5oJ_3loNk6fUz6CzltT6jUVo8nUoeXBq6vBCMgFg2tMGguJvqxKBDjmQeQk9nXKkz-2q9WSRsmiYfPrnqTQ",
 							"type": "string"
 						}
 					]
 				},
-				"method": "POST",
+				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/game/shop/1?type=weapon",
+					"raw": "http://localhost:8080/game/shop/4?type=weapon",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -496,13 +538,33 @@
 					"path": [
 						"game",
 						"shop",
-						"1"
+						"4"
 					],
 					"query": [
 						{
 							"key": "type",
 							"value": "weapon"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Shop Items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/shop",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"shop"
 					]
 				}
 			},
@@ -533,6 +595,37 @@
 					"path": [
 						"game",
 						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find Heroes Game Status ",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ1cG4iOiJBbWF6aW5nIEdvYXQiLCJncm91cHMiOlsiVXNlciIsIkhlcm8iXSwiZ2FtZUlkIjoxLCJoZXJvSWQiOjEsInVzZXJJZCI6MSwiaWF0IjoxNjA4OTA3NTc2LCJleHAiOjE2MDg5MDc4NzYsImp0aSI6Ikp4TERVcnZQWmpNcGQzTl96ZF9wb3cifQ.LHqtsrJB1Mx9566hDpSrfw85hny_Sq1Ef3a1a73vNnyYXDgldyihTn0L5g-KitXoihYo8-8W7hcEcXBuhircQPb_U2ZTq7aIIbMyK6I-SzBGCHJEopulx98oO6w9Dyc5Nml4W2ddXTZWOXFOSiDf2b0NnOQPgRIPI6wELP1k2QAhSiB_YSaSoy4vXrteU5xPPbP-tIDq76q6YuwUIW-BYvZlHnGmcITna7z5ZxwjWqlX4P6q8qH6OyshaTZ8BEqCwva4q3kbK9QRrdRYKNU41TPXzXq9obTR6M_buWYKQCeP1dg9MBKkvaTPjWTJ2ad19o5MfIjZ7pHTDeeWQjtJcw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/game/status/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"game",
+						"status",
+						"1"
 					]
 				}
 			},
