@@ -143,9 +143,9 @@ public class GameServiceImpl implements GameService {
         int itemDifferenceToMaxHealth = 1000;
         for(ItemDto item : inventoryDto.getItems()){
             if(item.getItemTypeName().equals("Healing Potion")){
-                if(Math.abs(100 - hero.getHealth() + item.getBonus()) < Math.abs(itemDifferenceToMaxHealth)){
+                if(Math.abs(100 - (hero.getHealth() + item.getBonus())) < Math.abs(itemDifferenceToMaxHealth)){
                     mostEfficientItem = item;
-                    itemDifferenceToMaxHealth = Math.abs(100 - hero.getHealth() + item.getBonus());
+                    itemDifferenceToMaxHealth = Math.abs(100 - (hero.getHealth() + item.getBonus()));
                 }
             }
         }
